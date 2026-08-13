@@ -1,5 +1,7 @@
 from django.db import models
 from business.models import Business, Service
+from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 class Appointment(models.Model):
     class Status(models.TextChoices):
@@ -20,3 +22,18 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f"{self.client_name} - {self.start_time.strftime('%d/%m %H:%M')}"
+
+    def clean(self):
+        if self.start_time and self.end_time:
+            if self.start_time >= self.end_time:
+                raise ValidationError("O horário de início deve ser anterior ao horário de término.")
+
+            conflitos = Appointment.objects.filter(
+                business=self.business,
+                status__in=[self.Status.PENDING, self.Status.CONFIRMED],
+            ).filter(
+                Q(start_time__lt=self.end_time) & Q(end_time__gt=self.start_time)
+            ).exclude(pk=self.pk)
+
+            if conflitos.exists():
+                raise ValidationError("Já existe um agendamento nesse horário para este negócio.")
