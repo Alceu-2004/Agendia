@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Agendar em {{ business.name }}</title>
+</head>
+<body>
+    <h1>{{ business.name }}</h1>
+    <h2>Serviços disponíveis</h2>
+    <ul>
+        {% for service in services %}
+            <li>{{ service.name }} — {{ service.duration_minutes }} min — R$ {{ service.price }}</li>
+        {% empty %}
+            <li>Nenhum serviço cadastrado ainda.</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Agendar horário</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Confirmar agendamento</button>
+    </form>
+</body>
+</html>
