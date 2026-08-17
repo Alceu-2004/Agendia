@@ -1,8 +1,19 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.exceptions import ValidationError
+from django.contrib.auth.decorators import login_required
 from datetime import timedelta
 from business.models import Business
+from .models import Appointment
 from .forms import AppointmentForm
+
+@login_required
+def dashboard(request):
+    business = get_object_or_404(Business, owner=request.user)
+    appointments = Appointment.objects.filter(business=business).order_by('start_time')
+    return render(request, 'scheduling/dashboard.html', {
+        'business': business,
+        'appointments': appointments,
+    })
 
 def public_booking_page(request, slug):
     business = get_object_or_404(Business, slug=slug)

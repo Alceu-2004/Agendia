@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel - {{ business.name }}</title>
+</head>
+<body>
+    <h1>Painel — {{ business.name }}</h1>
+    <a href="{% url 'logout' %}">Sair</a>
+
+    <h2>Agendamentos</h2>
+    <table border="1">
+        <tr>
+            <th>Cliente</th><th>Serviço</th><th>Início</th><th>Status</th>
+        </tr>
+        {% for a in appointments %}
+        <tr>
+            <td>{{ a.client_name }}</td>
+            <td>{{ a.service.name }}</td>
+            <td>{{ a.start_time }}</td>
+            <td>{{ a.get_status_display }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">Nenhum agendamento ainda.</td></tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
