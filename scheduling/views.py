@@ -5,6 +5,7 @@ from datetime import timedelta
 from business.models import Business
 from .models import Appointment
 from .forms import AppointmentForm
+from .tasks import send_confirmation_notification
 
 @login_required
 def dashboard(request):
@@ -30,6 +31,7 @@ def public_booking_page(request, slug):
             try:
                 appointment.full_clean()
                 appointment.save()
+                send_confirmation_notification.delay(appointment.id)
                 return redirect('booking_success', slug=business.slug)
             except ValidationError as e:
                 form.add_error(None, e)
