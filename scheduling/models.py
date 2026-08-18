@@ -3,6 +3,7 @@ from business.models import Business, Service
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 
+
 class Appointment(models.Model):
     class Status(models.TextChoices):
         PENDING = 'pending', 'Pendente'
@@ -14,6 +15,7 @@ class Appointment(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     client_name = models.CharField(max_length=100)
     client_phone = models.CharField(max_length=20)
+    client_email = models.EmailField(blank=True)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)

@@ -1,6 +1,33 @@
+import os
+import requests
 from celery import shared_task
+from django.core.mail import send_mail
 from django.utils import timezone
 from datetime import timedelta
+
+
+def send_whatsapp_message(to_number, message_body):
+    token = os.environ.get('WHATSAPP_TOKEN')
+    phone_number_id = os.environ.get('WHATSAPP_PHONE_NUMBER_ID')
+
+    if not token or not phone_number_id:
+        print(f"[WHATSAPP SIMULADO] Para {to_number}: {message_body}")
+        return None
+
+    url = f"https://graph.facebook.com/v21.0/{phone_number_id}/messages"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": to_number,
+        "type": "text",
+        "text": {"body": message_body},
+    }
+    response = requests.post(url, headers=headers, json=payload)
+    return response.json()
+
 
 @shared_task
 def send_confirmation_notification(appointment_id):
@@ -10,21 +37,34 @@ def send_confirmation_notification(appointment_id):
     except Appointment.DoesNotExist:
         return f"Appointment {appointment_id} não encontrado."
 
-    print(f"[SIMULAÇÃO] Enviando confirmação para {appointment.client_name} "
-          f"sobre agendamento em {appointment.start_time}")
+    message = (
+        f"Olá {appointment.client_name}! Seu agendamento em "
+        f"{appointment.business.name} foi confirmado para "
+        f"{appointment.start_time.strftime('%d/%m/%Y às %H:%M')}."
+    )
 
-    return f"Notificação simulada enviada para {appointment.client_name}"
+    send_whatsapp_message(appointment.client_phone, message)
+
+    if appointment.client_email:
+        send_mail(
+            subject=f'Agendamento confirmado - {appointment.business.name}',
+            message=message,
+            from_email=None,
+            recipient_list=[appointment.client_email],
+        )
+
+    return f"Notificação enviada para {appointment.client_name}"
+
 
 @shared_task
 def send_pending_reminders():
     from .models import Appointment
 
     now = timezone.now()
-    window_start = now
     window_end = now + timedelta(hours=24)
 
     appointments = Appointment.objects.filter(
-        start_time__gte=window_start,
+        start_time__gte=now,
         start_time__lte=window_end,
         reminder_sent=False,
         status__in=[Appointment.Status.PENDING, Appointment.Status.CONFIRMED],
@@ -32,8 +72,21 @@ def send_pending_reminders():
 
     count = 0
     for appointment in appointments:
-        print(f"[SIMULAÇÃO] Lembrete para {appointment.client_name}: "
-              f"seu horário é em {appointment.start_time}")
+        message = (
+            f"Lembrete: você tem um agendamento em {appointment.business.name} "
+            f"amanhã, dia {appointment.start_time.strftime('%d/%m às %H:%M')}."
+        )
+
+        send_whatsapp_message(appointment.client_phone, message)
+
+        if appointment.client_email:
+            send_mail(
+                subject=f'Lembrete de agendamento - {appointment.business.name}',
+                message=message,
+                from_email=None,
+                recipient_list=[appointment.client_email],
+            )
+
         appointment.reminder_sent = True
         appointment.save(update_fields=['reminder_sent'])
         count += 1
