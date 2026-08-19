@@ -8,6 +8,11 @@ from .forms import AppointmentForm
 from .tasks import send_confirmation_notification
 from django.urls import reverse
 
+
+def home(request):
+    return render(request, 'scheduling/home.html')
+
+
 @login_required
 def dashboard(request):
     business = get_object_or_404(Business, owner=request.user)

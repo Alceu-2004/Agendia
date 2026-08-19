@@ -46,7 +46,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark navbar-agendia mb-4 shadow-sm">
         <div class="container">
-            <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'login' %}{% endif %}">
+            <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'home' %}{% endif %}">
                 <i class="bi bi-calendar-check-fill me-2"></i>Agendia
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
