@@ -1,11 +1,23 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Agendamento confirmado</title>
-</head>
-<body>
-    <h1>Agendamento confirmado!</h1>
-    <p>Seu horário em {{ business.name }} foi registrado com sucesso.</p>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Agendamento confirmado{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-5 text-center mt-4">
+            <div class="mb-3">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+            </div>
+            <h2 class="fw-bold mb-2">Agendamento confirmado!</h2>
+            <p class="text-muted mb-4">
+                Seu horário em <strong>{{ business.name }}</strong> foi registrado com sucesso.
+                Você receberá uma confirmação por e-mail em instantes.
+            </p>
+            <a href="{% url 'public_booking' business.slug %}" class="btn btn-primary">
+                <i class="bi bi-arrow-left me-1"></i> Fazer novo agendamento
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,28 +1,50 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Painel - {{ business.name }}</title>
-</head>
-<body>
-    <h1>Painel — {{ business.name }}</h1>
-    <a href="{% url 'logout' %}">Sair</a>
+{% extends 'base.html' %}
 
-    <h2>Agendamentos</h2>
-    <table border="1">
-        <tr>
-            <th>Cliente</th><th>Serviço</th><th>Início</th><th>Status</th>
-        </tr>
-        {% for a in appointments %}
-        <tr>
-            <td>{{ a.client_name }}</td>
-            <td>{{ a.service.name }}</td>
-            <td>{{ a.start_time }}</td>
-            <td>{{ a.get_status_display }}</td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="4">Nenhum agendamento ainda.</td></tr>
-        {% endfor %}
-    </table>
-</body>
-</html>
+{% block title %}Painel - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="fw-bold mb-0">Painel</h1>
+        <p class="text-muted mb-0">{{ business.name }}</p>
+    </div>
+    <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-box-arrow-right me-1"></i>Sair
+    </button>
+</form>
+</div>
+
+<div class="card p-4">
+    <h5 class="fw-semibold mb-3"><i class="bi bi-calendar-week me-2"></i>Agendamentos</h5>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr class="text-muted small text-uppercase">
+                    <th>Cliente</th>
+                    <th>Serviço</th>
+                    <th>Início</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in appointments %}
+                <tr>
+                    <td class="fw-medium">{{ a.client_name }}</td>
+                    <td>{{ a.service.name }}</td>
+                    <td>{{ a.start_time }}</td>
+                    <td>
+                        <span class="badge {% if a.status == 'confirmed' %}bg-success{% elif a.status == 'cancelled' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                            {{ a.get_status_display }}
+                        </span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center text-muted py-4">Nenhum agendamento ainda.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

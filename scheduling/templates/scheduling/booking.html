@@ -1,25 +1,48 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Agendar em {{ business.name }}</title>
-</head>
-<body>
-    <h1>{{ business.name }}</h1>
-    <h2>Serviços disponíveis</h2>
-    <ul>
-        {% for service in services %}
-            <li>{{ service.name }} — {{ service.duration_minutes }} min — R$ {{ service.price }}</li>
-        {% empty %}
-            <li>Nenhum serviço cadastrado ainda.</li>
-        {% endfor %}
-    </ul>
+{% extends 'base.html' %}
 
-    <h2>Agendar horário</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Confirmar agendamento</button>
-    </form>
-</body>
-</html>
+{% block title %}Agendar em {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="text-center mb-4">
+            <h1 class="fw-bold">{{ business.name }}</h1>
+            <p class="text-muted">Escolha um serviço e agende seu horário</p>
+        </div>
+
+        <div class="card p-4 mb-4">
+            <h5 class="fw-semibold mb-3"><i class="bi bi-scissors me-2"></i>Serviços disponíveis</h5>
+            <ul class="list-group list-group-flush">
+                {% for service in services %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <div>
+                            <div class="fw-medium">{{ service.name }}</div>
+                            <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ service.duration_minutes }} min</small>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">R$ {{ service.price }}</span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item px-0">Nenhum serviço cadastrado ainda.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card p-4">
+            <h5 class="fw-semibold mb-3"><i class="bi bi-calendar-plus me-2"></i>Agendar horário</h5>
+            <form method="post">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>{{ form.non_field_errors }}</div>
+                    </div>
+                {% endif %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary w-100 py-2 mt-2">
+                    Confirmar agendamento
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
