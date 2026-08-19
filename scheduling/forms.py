@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from datetime import datetime
 from .models import Appointment
 
@@ -35,4 +36,5 @@ class AppointmentForm(forms.ModelForm):
         """Combina data + hora validadas num único datetime."""
         date = self.cleaned_data['date']
         time = self.cleaned_data['time']
-        return datetime.combine(date, time)
+        naive_datetime = datetime.combine(date, time)
+        return timezone.make_aware(naive_datetime)

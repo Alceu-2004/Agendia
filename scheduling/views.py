@@ -37,6 +37,7 @@ def public_booking_page(request, slug):
             try:
                 appointment.full_clean()
                 appointment.save()
+                send_confirmation_notification.delay(appointment.id)
                 return redirect('booking_success', slug=business.slug)
             except ValidationError as e:
                 form.add_error(None, e)

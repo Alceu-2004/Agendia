@@ -37,10 +37,12 @@ def send_confirmation_notification(appointment_id):
     except Appointment.DoesNotExist:
         return f"Appointment {appointment_id} não encontrado."
 
+    local_start = timezone.localtime(appointment.start_time)
+
     message = (
         f"Olá {appointment.client_name}! Seu agendamento em "
         f"{appointment.business.name} foi confirmado para "
-        f"{appointment.start_time.strftime('%d/%m/%Y às %H:%M')}."
+        f"{local_start.strftime('%d/%m/%Y às %H:%M')}."
     )
 
     send_whatsapp_message(appointment.client_phone, message)
@@ -72,9 +74,12 @@ def send_pending_reminders():
 
     count = 0
     for appointment in appointments:
+        local_start = timezone.localtime(appointment.start_time)
+        quando = "hoje" if local_start.date() == timezone.localtime(now).date() else "amanhã"
+
         message = (
-            f"Lembrete: você tem um agendamento em {appointment.business.name} "
-            f"amanhã, dia {appointment.start_time.strftime('%d/%m às %H:%M')}."
+            f"Olá {appointment.client_name}! Lembrete: você tem um agendamento em "
+            f"{appointment.business.name} {quando}, dia {local_start.strftime('%d/%m às %H:%M')}."
         )
 
         send_whatsapp_message(appointment.client_phone, message)
