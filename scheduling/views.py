@@ -30,13 +30,13 @@ def public_booking_page(request, slug):
         if form.is_valid():
             appointment = form.save(commit=False)
             appointment.business = business
+            appointment.start_time = form.get_start_time()
             appointment.end_time = appointment.start_time + timedelta(
                 minutes=appointment.service.duration_minutes
             )
             try:
                 appointment.full_clean()
                 appointment.save()
-                send_confirmation_notification.delay(appointment.id)
                 return redirect('booking_success', slug=business.slug)
             except ValidationError as e:
                 form.add_error(None, e)
