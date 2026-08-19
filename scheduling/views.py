@@ -6,14 +6,19 @@ from business.models import Business
 from .models import Appointment
 from .forms import AppointmentForm
 from .tasks import send_confirmation_notification
+from django.urls import reverse
 
 @login_required
 def dashboard(request):
     business = get_object_or_404(Business, owner=request.user)
     appointments = Appointment.objects.filter(business=business).order_by('start_time')
+    public_url = request.build_absolute_uri(
+        reverse('public_booking', kwargs={'slug': business.slug})
+    )
     return render(request, 'scheduling/dashboard.html', {
         'business': business,
         'appointments': appointments,
+        'public_url': public_url,
     })
 
 def public_booking_page(request, slug):

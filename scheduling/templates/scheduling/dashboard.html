@@ -16,6 +16,29 @@
 </form>
 </div>
 
+<div class="card p-4 mb-4">
+    <h5 class="fw-semibold mb-3"><i class="bi bi-link-45deg me-2"></i>Seu link de agendamento</h5>
+    <p class="text-muted small mb-3">Compartilhe esse link com seus clientes (WhatsApp, Instagram, etc.) para que eles possam agendar diretamente.</p>
+    <div class="input-group">
+        <input type="text" id="publicLink" class="form-control" value="{{ public_url }}" readonly>
+        <button class="btn btn-primary" type="button" onclick="copyPublicLink()">
+            <i class="bi bi-clipboard me-1"></i><span id="copyBtnText">Copiar</span>
+        </button>
+    </div>
+</div>
+
+<script>
+function copyPublicLink() {
+    const input = document.getElementById('publicLink');
+    input.select();
+    navigator.clipboard.writeText(input.value).then(() => {
+        const btnText = document.getElementById('copyBtnText');
+        btnText.textContent = 'Copiado!';
+        setTimeout(() => { btnText.textContent = 'Copiar'; }, 2000);
+    });
+}
+</script>
+
 <div class="card p-4">
     <h5 class="fw-semibold mb-3"><i class="bi bi-calendar-week me-2"></i>Agendamentos</h5>
     <div class="table-responsive">
