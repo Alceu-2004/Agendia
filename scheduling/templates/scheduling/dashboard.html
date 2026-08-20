@@ -57,7 +57,7 @@ function copyPublicLink() {
                 <tr>
                     <td class="fw-medium">{{ a.client_name }}</td>
                     <td>{{ a.service.name }}</td>
-                    <td>{{ a.start_time }}</td>
+                    <td>{{ a.start_time|date:"d/m/Y H:i" }}</td>
                     <td>
                         <span class="badge {% if a.status == 'confirmed' %}bg-success{% elif a.status == 'cancelled' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
                             {{ a.get_status_display }}
