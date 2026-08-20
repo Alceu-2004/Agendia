@@ -7,6 +7,7 @@ from .models import Appointment
 from .forms import AppointmentForm
 from .tasks import send_confirmation_notification
 from django.urls import reverse
+from django.contrib import messages
 
 
 def home(request):
@@ -26,6 +27,48 @@ def dashboard(request):
         'public_url': public_url,
     })
 
+from django.contrib import messages
+
+
+@login_required
+def appointment_confirm(request, pk):
+    business = get_object_or_404(Business, owner=request.user)
+    appointment = get_object_or_404(Appointment, pk=pk, business=business)
+    appointment.status = Appointment.Status.CONFIRMED
+    appointment.save(update_fields=['status'])
+    messages.success(request, f'Agendamento de {appointment.client_name} confirmado.')
+    return redirect('dashboard')
+
+
+@login_required
+def appointment_cancel(request, pk):
+    business = get_object_or_404(Business, owner=request.user)
+    appointment = get_object_or_404(Appointment, pk=pk, business=business)
+    appointment.status = Appointment.Status.CANCELLED
+    appointment.save(update_fields=['status'])
+    messages.success(request, f'Agendamento de {appointment.client_name} cancelado.')
+    return redirect('dashboard')
+
+
+@login_required
+def appointment_delete(request, pk):
+    business = get_object_or_404(Business, owner=request.user)
+    appointment = get_object_or_404(Appointment, pk=pk, business=business)
+    if request.method == 'POST':
+        appointment.delete()
+        messages.success(request, 'Agendamento excluído.')
+        return redirect('dashboard')
+    return render(request, 'scheduling/appointment_confirm_delete.html', {'appointment': appointment})
+
+@login_required
+def appointment_done(request, pk):
+    business = get_object_or_404(Business, owner=request.user)
+    appointment = get_object_or_404(Appointment, pk=pk, business=business)
+    appointment.status = Appointment.Status.DONE
+    appointment.save(update_fields=['status'])
+    messages.success(request, f'Agendamento de {appointment.client_name} marcado como concluído.')
+    return redirect('dashboard')
+    
 def public_booking_page(request, slug):
     business = get_object_or_404(Business, slug=slug)
     services = business.services.all()
