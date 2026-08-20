@@ -56,6 +56,11 @@
                 <ul class="navbar-nav ms-auto align-items-lg-center">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'service_list' %}active fw-semibold{% endif %}" href="{% url 'service_list' %}">
+                                <i class="bi bi-scissors me-1"></i> Serviços
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active fw-semibold{% endif %}" href="{% url 'dashboard' %}">
                                 <i class="bi bi-calendar-week me-1"></i> Painel
                             </a>
