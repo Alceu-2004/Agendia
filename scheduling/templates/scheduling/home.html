@@ -11,9 +11,14 @@
             Sistema de agendamento online para salões, barbearias e clínicas.
             Confirmação automática, lembretes e agenda visível para o seu negócio.
         </p>
-        <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-4">
-            <i class="bi bi-box-arrow-in-right me-1"></i> Acessar minha conta
-        </a>
+        <div class="d-grid d-sm-flex justify-content-sm-center gap-2">
+            <a href="{% url 'business_signup' %}" class="btn btn-primary btn-lg px-4">
+                <i class="bi bi-plus-lg me-1"></i> Cadastrar meu negócio
+            </a>
+            <a href="{% url 'login' %}" class="btn btn-outline-primary btn-lg px-4">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Já tenho conta
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}

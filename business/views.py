@@ -2,6 +2,20 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Business, Service
 from .forms import ServiceForm
+from django.contrib.auth import login
+from .forms import ServiceForm, BusinessSignupForm
+
+
+def business_signup(request):
+    if request.method == 'POST':
+        form = BusinessSignupForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('dashboard')
+    else:
+        form = BusinessSignupForm()
+    return render(request, 'business/signup.html', {'form': form})
 
 
 @login_required
