@@ -25,8 +25,12 @@ def send_whatsapp_message(to_number, message_body):
         "type": "text",
         "text": {"body": message_body},
     }
-    response = requests.post(url, headers=headers, json=payload)
-    return response.json()
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        return response.json()
+    except Exception as e:
+        print(f"[ERRO AO ENVIAR WHATSAPP] {e}")
+        return None
 
 
 @shared_task
@@ -48,12 +52,15 @@ def send_confirmation_notification(appointment_id):
     send_whatsapp_message(appointment.client_phone, message)
 
     if appointment.client_email:
-        send_mail(
-            subject=f'Agendamento confirmado - {appointment.business.name}',
-            message=message,
-            from_email=None,
-            recipient_list=[appointment.client_email],
-        )
+        try:
+            send_mail(
+                subject=f'Agendamento confirmado - {appointment.business.name}',
+                message=message,
+                from_email=None,
+                recipient_list=[appointment.client_email],
+            )
+        except Exception as e:
+            print(f"[ERRO AO ENVIAR EMAIL] {e}")
 
     return f"Notificação enviada para {appointment.client_name}"
 
@@ -85,18 +92,22 @@ def send_pending_reminders():
         send_whatsapp_message(appointment.client_phone, message)
 
         if appointment.client_email:
-            send_mail(
-                subject=f'Lembrete de agendamento - {appointment.business.name}',
-                message=message,
-                from_email=None,
-                recipient_list=[appointment.client_email],
-            )
+            try:
+                send_mail(
+                    subject=f'Lembrete de agendamento - {appointment.business.name}',
+                    message=message,
+                    from_email=None,
+                    recipient_list=[appointment.client_email],
+                )
+            except Exception as e:
+                print(f"[ERRO AO ENVIAR EMAIL] {e}")
 
         appointment.reminder_sent = True
         appointment.save(update_fields=['reminder_sent'])
         count += 1
 
     return f"{count} lembrete(s) processado(s)."
+
 
 @shared_task
 def send_cancellation_notification(appointment_id):
@@ -117,11 +128,14 @@ def send_cancellation_notification(appointment_id):
     send_whatsapp_message(appointment.client_phone, message)
 
     if appointment.client_email:
-        send_mail(
-            subject=f'Agendamento cancelado - {appointment.business.name}',
-            message=message,
-            from_email=None,
-            recipient_list=[appointment.client_email],
-        )
+        try:
+            send_mail(
+                subject=f'Agendamento cancelado - {appointment.business.name}',
+                message=message,
+                from_email=None,
+                recipient_list=[appointment.client_email],
+            )
+        except Exception as e:
+            print(f"[ERRO AO ENVIAR EMAIL] {e}")
 
     return f"Notificação de cancelamento enviada para {appointment.client_name}"
