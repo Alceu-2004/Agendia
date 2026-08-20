@@ -97,3 +97,31 @@ def send_pending_reminders():
         count += 1
 
     return f"{count} lembrete(s) processado(s)."
+
+@shared_task
+def send_cancellation_notification(appointment_id):
+    from .models import Appointment
+    try:
+        appointment = Appointment.objects.get(id=appointment_id)
+    except Appointment.DoesNotExist:
+        return f"Appointment {appointment_id} não encontrado."
+
+    local_start = timezone.localtime(appointment.start_time)
+
+    message = (
+        f"Olá {appointment.client_name}, informamos que seu agendamento em "
+        f"{appointment.business.name} para {local_start.strftime('%d/%m/%Y às %H:%M')} "
+        f"foi cancelado. Qualquer dúvida, entre em contato com o estabelecimento."
+    )
+
+    send_whatsapp_message(appointment.client_phone, message)
+
+    if appointment.client_email:
+        send_mail(
+            subject=f'Agendamento cancelado - {appointment.business.name}',
+            message=message,
+            from_email=None,
+            recipient_list=[appointment.client_email],
+        )
+
+    return f"Notificação de cancelamento enviada para {appointment.client_name}"

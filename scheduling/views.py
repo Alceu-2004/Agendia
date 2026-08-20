@@ -8,7 +8,7 @@ from .forms import AppointmentForm
 from .tasks import send_confirmation_notification
 from django.urls import reverse
 from django.contrib import messages
-
+from .tasks import send_confirmation_notification, send_cancellation_notification
 
 def home(request):
     return render(request, 'scheduling/home.html')
@@ -46,6 +46,7 @@ def appointment_cancel(request, pk):
     appointment = get_object_or_404(Appointment, pk=pk, business=business)
     appointment.status = Appointment.Status.CANCELLED
     appointment.save(update_fields=['status'])
+    send_cancellation_notification.delay(appointment.id)
     messages.success(request, f'Agendamento de {appointment.client_name} cancelado.')
     return redirect('dashboard')
 
@@ -68,7 +69,7 @@ def appointment_done(request, pk):
     appointment.save(update_fields=['status'])
     messages.success(request, f'Agendamento de {appointment.client_name} marcado como concluído.')
     return redirect('dashboard')
-    
+
 def public_booking_page(request, slug):
     business = get_object_or_404(Business, slug=slug)
     services = business.services.all()
